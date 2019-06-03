@@ -1,6 +1,6 @@
 package io.seventytwo.demo.hr;
 
-import io.seventytwo.demo.hr.model.tables.Employee;
+import io.seventytwo.demo.hr.model.tables.records.AddressRecord;
 import io.seventytwo.demo.hr.model.tables.records.DepartmentRecord;
 import io.seventytwo.demo.hr.model.tables.records.EmployeeRecord;
 import org.jooq.DSLContext;
@@ -36,11 +36,13 @@ public class JooqHrApplicationTests {
 
         departmentId = department.getId();
 
-        EmployeeRecord employee = new EmployeeRecord(null, "Simon Martinelli", 80000, departmentId, null);
+        EmployeeRecord employee = new EmployeeRecord(null, "John Doe", 80000, departmentId, null);
         create.attach(employee);
         employee.store();
 
         employeeId = employee.getId();
+
+        AddressRecord address = new AddressRecord(null, "27 Beverly Park Terrace", "90210", "Beverly Hills", employeeId);
     }
 
     @Test
@@ -92,7 +94,7 @@ public class JooqHrApplicationTests {
         create.attach(departmentRecord);
         departmentRecord.store();
 
-        assertEquals(Integer.valueOf(2), departmentRecord.getId());
+        assertEquals(2, departmentRecord.getId().intValue());
     }
 
 
