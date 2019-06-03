@@ -1,5 +1,6 @@
 package io.seventytwo.demo.hr;
 
+import io.seventytwo.demo.hr.dto.EmployeeWithAddressDTO;
 import io.seventytwo.demo.hr.model.tables.records.AddressRecord;
 import io.seventytwo.demo.hr.model.tables.records.DepartmentRecord;
 import io.seventytwo.demo.hr.model.tables.records.EmployeeRecord;
@@ -12,6 +13,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
+import static io.seventytwo.demo.hr.model.tables.Address.ADDRESS;
 import static io.seventytwo.demo.hr.model.tables.Department.DEPARTMENT;
 import static io.seventytwo.demo.hr.model.tables.Employee.EMPLOYEE;
 import static org.junit.Assert.assertEquals;
@@ -27,6 +31,7 @@ public class JooqHrApplicationTests {
 
     private int departmentId;
     private int employeeId;
+    private int addressId;
 
     @Before
     public void insertData() {
@@ -43,6 +48,10 @@ public class JooqHrApplicationTests {
         employeeId = employee.getId();
 
         AddressRecord address = new AddressRecord(null, "27 Beverly Park Terrace", "90210", "Beverly Hills", employeeId);
+        create.attach(address);
+        address.store();
+
+        addressId = address.getId();
     }
 
     @Test
@@ -97,5 +106,30 @@ public class JooqHrApplicationTests {
         assertEquals(2, departmentRecord.getId().intValue());
     }
 
+    @Test
+    public void join() {
+        List<EmployeeRecord> list = create
+                .select()
+                .from(EMPLOYEE)
+                .join(DEPARTMENT).on(DEPARTMENT.ID.eq(EMPLOYEE.DEPARTMENT_ID))
+                .where(DEPARTMENT.NAME.eq("IT"))
+                .fetchInto(EmployeeRecord.class);
+
+        assertEquals(1, list.size());
+    }
+
+    @Test
+    public void dtoProjection() {
+        List<EmployeeWithAddressDTO> list = create
+                .select(EMPLOYEE.NAME, ADDRESS.STREET, ADDRESS.ZIP, ADDRESS.CITY)
+                .from(EMPLOYEE)
+                .join(ADDRESS).on(ADDRESS.EMPLOYEE_ID.eq(EMPLOYEE.ID))
+                .fetchInto(EmployeeWithAddressDTO.class);
+
+        assertEquals(1, list.size());
+
+        EmployeeWithAddressDTO dto = list.get(0);
+        assertEquals("90210", dto.getAddressZip());
+    }
 
 }
