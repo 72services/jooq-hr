@@ -10,6 +10,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -87,14 +88,12 @@ public class JooqHrApplicationTests {
         assertEquals(1, affectedRows);
     }
 
-    @Test
+    @Test(expected = DataIntegrityViolationException.class)
     public void delete() {
         int affectedRows = create
                 .deleteFrom(EMPLOYEE)
                 .where(EMPLOYEE.ID.eq(employeeId))
                 .execute();
-
-        assertEquals(1, affectedRows);
     }
 
     @Test
