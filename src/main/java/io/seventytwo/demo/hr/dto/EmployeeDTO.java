@@ -2,37 +2,25 @@ package io.seventytwo.demo.hr.dto;
 
 public class EmployeeDTO {
 
-    private final String name;
-    private final String street;
-    private final String zip;
-    private final String city;
-    private final String state;
+    private final String lastName;
+    private final String firstName;
+    private final Integer salary;
 
-    public EmployeeDTO(String name, String street, String zip, String city, String state) {
-        this.name = name;
-        this.street = street;
-        this.zip = zip;
-        this.city = city;
-        this.state = state;
+    public EmployeeDTO(String lastName, String firstName, Integer salary) {
+        this.lastName = lastName;
+        this.firstName = firstName;
+        this.salary = salary;
     }
 
-    public String getName() {
-        return name;
+    public String getLastName() {
+        return lastName;
     }
 
-    public String getStreet() {
-        return street;
+    public String getFirstName() {
+        return firstName;
     }
 
-    public String getZip() {
-        return zip;
-    }
-
-    public String getCity() {
-        return city;
-    }
-
-    public String getState() {
-        return state;
+    public Integer getSalary() {
+        return salary;
     }
 }

@@ -11,8 +11,6 @@
     <groupId>io.seventytwo.demo</groupId>
     <artifactId>jooq-hr</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>jooq-employee</name>
-    <description>Demo project for Spring Boot</description>
 
     <properties>
         <java.version>11</java.version>
