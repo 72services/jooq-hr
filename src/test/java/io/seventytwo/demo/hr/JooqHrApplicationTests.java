@@ -6,6 +6,7 @@ import io.seventytwo.demo.hr.model.tables.records.AddressRecord;
 import io.seventytwo.demo.hr.model.tables.records.DepartmentRecord;
 import io.seventytwo.demo.hr.model.tables.records.EmployeeRecord;
 import org.jooq.DSLContext;
+import org.jooq.Name;
 import org.jooq.Record;
 import org.jooq.Result;
 import org.junit.Before;
@@ -22,6 +23,8 @@ import java.util.List;
 import static io.seventytwo.demo.hr.model.tables.Address.ADDRESS;
 import static io.seventytwo.demo.hr.model.tables.Department.DEPARTMENT;
 import static io.seventytwo.demo.hr.model.tables.Employee.EMPLOYEE;
+import static org.jooq.impl.DSL.name;
+import static org.jooq.impl.DSL.select;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
@@ -143,11 +146,11 @@ public class JooqHrApplicationTests {
 
     @Test
     public void employeeDtoProjection() {
-            List<EmployeeDTO> records = create
-                    .select(EMPLOYEE.LASTNAME, EMPLOYEE.FIRSTNAME, EMPLOYEE.SALARY)
-                    .from(EMPLOYEE)
-                    .where(EMPLOYEE.SALARY.between(80000, 100000))
-                    .fetchInto(EmployeeDTO.class);
+        List<EmployeeDTO> records = create
+                .select(EMPLOYEE.LASTNAME, EMPLOYEE.FIRSTNAME, EMPLOYEE.SALARY)
+                .from(EMPLOYEE)
+                .where(EMPLOYEE.SALARY.between(80000, 100000))
+                .fetchInto(EmployeeDTO.class);
 
         assertEquals(2, records.size());
     }
@@ -161,6 +164,26 @@ public class JooqHrApplicationTests {
                         "SELECT employee.id, employee.lastname, employee.firstname, employee.manager_id FROM employeetree INNER JOIN employee ON (employeetree.id = employee.manager_id) " +
                         ") " +
                         "SELECT id, lastname, firstname, manager_id FROM employeetree");
+
+        assertEquals(2, records.size());
+    }
+
+    @Test
+    public void withRecursive() {
+        Name employeetree = name("employeetree");
+
+        Result<Record> records = create
+                .withRecursive(employeetree, EMPLOYEE.ID.getUnqualifiedName(), EMPLOYEE.LASTNAME.getUnqualifiedName(), EMPLOYEE.FIRSTNAME.getUnqualifiedName(), EMPLOYEE.MANAGER_ID.getUnqualifiedName())
+                .as(
+                        select(EMPLOYEE.ID, EMPLOYEE.LASTNAME, EMPLOYEE.FIRSTNAME, EMPLOYEE.MANAGER_ID).from(EMPLOYEE).where(EMPLOYEE.MANAGER_ID.isNull())
+                                .unionAll(
+                                        select(EMPLOYEE.ID, EMPLOYEE.LASTNAME, EMPLOYEE.FIRSTNAME, EMPLOYEE.MANAGER_ID)
+                                                .from(employeetree).innerJoin(EMPLOYEE).on("{0}.ID = {1}", employeetree, EMPLOYEE.MANAGER_ID))
+                )
+                .selectFrom(employeetree)
+                .fetch();
+
+        assertEquals(2, records.size());
     }
 
 }
