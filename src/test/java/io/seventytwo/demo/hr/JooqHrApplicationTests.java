@@ -34,7 +34,7 @@ import static org.junit.Assert.assertNotNull;
 public class JooqHrApplicationTests {
 
     @Autowired
-    private DSLContext create;
+    private DSLContext dsl;
 
     private int departmentId;
     private int mangerId;
@@ -44,25 +44,25 @@ public class JooqHrApplicationTests {
     @Before
     public void insertData() {
         DepartmentRecord department = new DepartmentRecord(null, "IT");
-        create.attach(department);
+        dsl.attach(department);
         department.store();
 
         departmentId = department.getId();
 
         EmployeeRecord manager = new EmployeeRecord(null, "Gates", "Bill", 100000, departmentId, null);
-        create.attach(manager);
+        dsl.attach(manager);
         manager.store();
 
         mangerId = manager.getId();
 
         EmployeeRecord employee = new EmployeeRecord(null, "Doe", "John", 80000, departmentId, mangerId);
-        create.attach(employee);
+        dsl.attach(employee);
         employee.store();
 
         employeeId = employee.getId();
 
         AddressRecord address = new AddressRecord(null, "27 Beverly Park Terrace", "90210", "Beverly Hills", employeeId);
-        create.attach(address);
+        dsl.attach(address);
         address.store();
 
         addressId = address.getId();
@@ -70,7 +70,7 @@ public class JooqHrApplicationTests {
 
     @Test
     public void query() {
-        DepartmentRecord departmentRecord = create
+        DepartmentRecord departmentRecord = dsl
                 .selectFrom(DEPARTMENT)
                 .where(DEPARTMENT.NAME.eq("IT"))
                 .fetchOne();
@@ -81,7 +81,7 @@ public class JooqHrApplicationTests {
 
     @Test
     public void insert() {
-        int affectedRows = create
+        int affectedRows = dsl
                 .insertInto(DEPARTMENT)
                 .columns(DEPARTMENT.NAME)
                 .values("HR")
@@ -92,7 +92,7 @@ public class JooqHrApplicationTests {
 
     @Test
     public void update() {
-        int affectedRows = create
+        int affectedRows = dsl
                 .update(DEPARTMENT)
                 .set(DEPARTMENT.NAME, "IT2")
                 .where(DEPARTMENT.ID.eq(departmentId))
@@ -103,7 +103,7 @@ public class JooqHrApplicationTests {
 
     @Test(expected = DataIntegrityViolationException.class)
     public void delete() {
-        int affectedRows = create
+        int affectedRows = dsl
                 .deleteFrom(EMPLOYEE)
                 .where(EMPLOYEE.ID.eq(employeeId))
                 .execute();
@@ -112,7 +112,7 @@ public class JooqHrApplicationTests {
     @Test
     public void storeRecord() {
         DepartmentRecord departmentRecord = new DepartmentRecord(null, "IT");
-        create.attach(departmentRecord);
+        dsl.attach(departmentRecord);
         departmentRecord.store();
 
         assertEquals(2, departmentRecord.getId().intValue());
@@ -120,7 +120,7 @@ public class JooqHrApplicationTests {
 
     @Test
     public void join() {
-        List<EmployeeRecord> list = create
+        List<EmployeeRecord> list = dsl
                 .select()
                 .from(EMPLOYEE)
                 .join(DEPARTMENT).on(DEPARTMENT.ID.eq(EMPLOYEE.DEPARTMENT_ID))
@@ -132,7 +132,7 @@ public class JooqHrApplicationTests {
 
     @Test
     public void employeeWithAddressDtoProjection() {
-        List<EmployeeWithAddressDTO> list = create
+        List<EmployeeWithAddressDTO> list = dsl
                 .select(EMPLOYEE.LASTNAME, EMPLOYEE.FIRSTNAME, ADDRESS.STREET, ADDRESS.ZIP, ADDRESS.CITY)
                 .from(EMPLOYEE)
                 .join(ADDRESS).on(ADDRESS.EMPLOYEE_ID.eq(EMPLOYEE.ID))
@@ -146,7 +146,7 @@ public class JooqHrApplicationTests {
 
     @Test
     public void employeeDtoProjection() {
-        List<EmployeeDTO> records = create
+        List<EmployeeDTO> records = dsl
                 .select(EMPLOYEE.LASTNAME, EMPLOYEE.FIRSTNAME, EMPLOYEE.SALARY)
                 .from(EMPLOYEE)
                 .where(EMPLOYEE.SALARY.between(80000, 100000))
@@ -157,7 +157,7 @@ public class JooqHrApplicationTests {
 
     @Test
     public void plainSql() {
-        Result<Record> records = create
+        Result<Record> records = dsl
                 .fetch("WITH RECURSIVE employeetree(id, lastname, firstname, manager_id) AS (" +
                         "SELECT id, lastname, firstname, manager_id FROM employee WHERE manager_id IS NULL " +
                         "UNION ALL " +
@@ -172,7 +172,7 @@ public class JooqHrApplicationTests {
     public void withRecursive() {
         Name employeetree = name("employeetree");
 
-        Result<Record> records = create
+        Result<Record> records = dsl
                 .withRecursive(employeetree, EMPLOYEE.ID.getUnqualifiedName(), EMPLOYEE.LASTNAME.getUnqualifiedName(), EMPLOYEE.FIRSTNAME.getUnqualifiedName(), EMPLOYEE.MANAGER_ID.getUnqualifiedName())
                 .as(
                         select(EMPLOYEE.ID, EMPLOYEE.LASTNAME, EMPLOYEE.FIRSTNAME, EMPLOYEE.MANAGER_ID).from(EMPLOYEE).where(EMPLOYEE.MANAGER_ID.isNull())
