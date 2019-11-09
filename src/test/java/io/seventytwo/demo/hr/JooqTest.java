@@ -2,6 +2,7 @@ package io.seventytwo.demo.hr;
 
 import io.seventytwo.demo.hr.dto.DepartmentSalaryStatistics;
 import io.seventytwo.demo.hr.model.tables.records.EmployeeRecord;
+import io.seventytwo.demo.hr.model.tables.records.PhoneRecord;
 import org.jooq.DSLContext;
 import org.jooq.Record;
 import org.jooq.Record2;
@@ -15,6 +16,7 @@ import java.util.List;
 import static io.seventytwo.demo.hr.model.tables.Address.ADDRESS;
 import static io.seventytwo.demo.hr.model.tables.Department.DEPARTMENT;
 import static io.seventytwo.demo.hr.model.tables.Employee.EMPLOYEE;
+import static io.seventytwo.demo.hr.model.tables.Phone.PHONE;
 import static io.seventytwo.demo.hr.model.tables.ProjectEmployees.PROJECT_EMPLOYEES;
 import static org.jooq.impl.DSL.avg;
 import static org.jooq.impl.DSL.min;
@@ -119,7 +121,11 @@ public class JooqTest {
      */
     @Test
     public void findAllWorkPhonesOrderedByNumber() {
-//        assertEquals(5, list.size());
+        Result<PhoneRecord> list = dsl
+                .selectFrom(PHONE)
+                .where(PHONE.TYPE.eq("WORK"))
+                .fetch();
+        assertEquals(5, list.size());
     }
 
 
@@ -128,7 +134,14 @@ public class JooqTest {
      */
     @Test
     public void findAllEmployeesWithoutWorkPhone() {
-//        assertEquals(1, list.size());
+        Result<Record2<Integer, Integer>> list = dsl
+                .select(EMPLOYEE.ID, PHONE.ID)
+                .from(EMPLOYEE)
+                .leftOuterJoin(PHONE).on(EMPLOYEE.ID.eq(PHONE.EMPLOYEE_ID))
+                .where(PHONE.ID.isNull())
+                .fetch();
+
+        assertEquals(1, list.size());
     }
 
 }
