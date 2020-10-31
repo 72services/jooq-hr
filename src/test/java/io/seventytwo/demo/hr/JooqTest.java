@@ -11,6 +11,7 @@ import org.jooq.Record1;
 import org.jooq.Record2;
 import org.jooq.Result;
 import org.jooq.Table;
+import org.jooq.XML;
 import org.jooq.impl.DSL;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -160,14 +161,15 @@ public class JooqTest {
      */
     @Test
     public void xml() {
+        Field<XML> phone = dsl
+                .select(xmlagg(xmlelement("phone", xmlattributes(PHONE.PHONENUMBER, PHONE.TYPE))))
+                .from(PHONE)
+                .where(PHONE.EMPLOYEE_ID.eq(EMPLOYEE.ID))
+                .asField();
+
         String xml = dsl
                 .select(xmlelement("employees",
-                        xmlagg(xmlelement("employee", xmlattributes(EMPLOYEE.ID, EMPLOYEE.NAME),
-                                xmlelement("phones",
-                                        dsl.select(xmlagg(xmlelement("phone", xmlattributes(PHONE.PHONENUMBER, PHONE.TYPE))))
-                                                .from(PHONE)
-                                                .where(PHONE.EMPLOYEE_ID.eq(EMPLOYEE.ID))
-                                                .asField())))))
+                        xmlagg(xmlelement("employee", xmlattributes(EMPLOYEE.ID, EMPLOYEE.NAME), xmlelement("phones", phone)))))
                 .from(EMPLOYEE)
                 .fetchOneInto(String.class);
 
@@ -179,14 +181,10 @@ public class JooqTest {
         Field<JSON> employee = DSL.field("employee", JSON.class);
 
         Table<Record1<JSON>> employees = dsl
-                .select(jsonObject(
-                        jsonEntry("id", EMPLOYEE.ID),
-                        jsonEntry("name", EMPLOYEE.NAME),
-                        jsonEntry("phones", jsonArrayAgg(
-                                jsonObject(
-                                        jsonEntry("number", PHONE.PHONENUMBER),
-                                        jsonEntry("type", PHONE.TYPE)))))
-                        .as(employee))
+                .select(jsonObject(jsonEntry("id", EMPLOYEE.ID), jsonEntry("name", EMPLOYEE.NAME), jsonEntry("phones",
+                        jsonArrayAgg(
+                                jsonObject(jsonEntry("number", PHONE.PHONENUMBER), jsonEntry("type", PHONE.TYPE)))
+                )).as(employee))
                 .from(EMPLOYEE)
                 .join(PHONE).on(PHONE.EMPLOYEE_ID.eq(EMPLOYEE.ID))
                 .groupBy(EMPLOYEE.ID)
