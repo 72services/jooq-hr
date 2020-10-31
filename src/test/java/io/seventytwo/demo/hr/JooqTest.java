@@ -5,8 +5,10 @@ import io.seventytwo.demo.hr.model.tables.records.EmployeeRecord;
 import io.seventytwo.demo.hr.model.tables.records.PhoneRecord;
 import org.jooq.DSLContext;
 import org.jooq.Record;
+import org.jooq.Record1;
 import org.jooq.Record2;
 import org.jooq.Result;
+import org.jooq.XML;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -19,7 +21,12 @@ import static io.seventytwo.demo.hr.model.tables.Employee.EMPLOYEE;
 import static io.seventytwo.demo.hr.model.tables.Phone.PHONE;
 import static io.seventytwo.demo.hr.model.tables.ProjectEmployees.PROJECT_EMPLOYEES;
 import static org.jooq.impl.DSL.avg;
+import static org.jooq.impl.DSL.jsonArray;
+import static org.jooq.impl.DSL.jsonArrayAgg;
 import static org.jooq.impl.DSL.min;
+import static org.jooq.impl.DSL.xmlagg;
+import static org.jooq.impl.DSL.xmlattributes;
+import static org.jooq.impl.DSL.xmlelement;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @SpringBootTest
@@ -142,6 +149,25 @@ public class JooqTest {
                 .fetch();
 
         assertEquals(1, list.size());
+    }
+
+    /**
+     * XML_ELEMENT
+     */
+    @Test
+    public void xml() {
+        String xml = dsl
+                .select(xmlelement("employees",
+                        xmlagg(xmlelement("employee", xmlattributes(EMPLOYEE.ID, EMPLOYEE.NAME),
+                                xmlelement("phones",
+                                        dsl.select(xmlagg(xmlelement("phone", xmlattributes(PHONE.PHONENUMBER, PHONE.TYPE))))
+                                                .from(PHONE)
+                                                .where(PHONE.EMPLOYEE_ID.eq(EMPLOYEE.ID))
+                                                .asField())))))
+                .from(EMPLOYEE)
+                .fetchOneInto(String.class);
+
+        System.out.println(xml);
     }
 
 }

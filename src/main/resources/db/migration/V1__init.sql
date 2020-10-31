@@ -1,83 +1,83 @@
-CREATE TABLE address (
-    id integer NOT NULL,
-    city character varying(255),
-    state character varying(255),
-    street character varying(255),
-    zip character varying(255),
-    created_date timestamp,
-    last_modified_date timestamp,
-    version integer default 0
+CREATE TABLE ADDRESS (
+    ID INTEGER NOT NULL,
+    CITY CHARACTER VARYING(255),
+    STATE CHARACTER VARYING(255),
+    STREET CHARACTER VARYING(255),
+    ZIP CHARACTER VARYING(255),
+    CREATED_DATE TIMESTAMP,
+    LAST_MODIFIED_DATE TIMESTAMP,
+    VERSION INTEGER DEFAULT 0
 );
 
-CREATE SEQUENCE address_seq
+CREATE SEQUENCE ADDRESS_SEQ
     START WITH 1000
     INCREMENT BY 50
     NO MINVALUE
     NO MAXVALUE
     CACHE 1;
 
-CREATE TABLE department (
-    id integer NOT NULL,
-    name character varying(255),
-    created_date timestamp,
-    last_modified_date timestamp,
-    version integer default 0
+CREATE TABLE DEPARTMENT (
+    ID INTEGER NOT NULL,
+    NAME CHARACTER VARYING(255),
+    CREATED_DATE TIMESTAMP,
+    LAST_MODIFIED_DATE TIMESTAMP,
+    VERSION INTEGER DEFAULT 0
 );
 
-CREATE SEQUENCE department_seq
+CREATE SEQUENCE DEPARTMENT_SEQ
     START WITH 1000
     INCREMENT BY 50
     NO MINVALUE
     NO MAXVALUE
     CACHE 1;
 
-CREATE TABLE employee (
-    id integer NOT NULL,
-    name character varying(255),
-    salary bigint NOT NULL,
-    full_time character varying(1) default 'Y',
-    address_id integer,
-    boss_id integer,
-    department_id integer,
-    created_date timestamp,
-    last_modified_date timestamp,
-    version integer default 0
+CREATE TABLE EMPLOYEE (
+    ID INTEGER NOT NULL,
+    NAME CHARACTER VARYING(255),
+    SALARY BIGINT NOT NULL,
+    FULL_TIME CHARACTER VARYING(1) DEFAULT 'Y',
+    ADDRESS_ID INTEGER,
+    BOSS_ID INTEGER,
+    DEPARTMENT_ID INTEGER,
+    CREATED_DATE TIMESTAMP,
+    LAST_MODIFIED_DATE TIMESTAMP,
+    VERSION INTEGER DEFAULT 0
 );
 
-CREATE SEQUENCE employee_seq
+CREATE SEQUENCE EMPLOYEE_SEQ
     START WITH 1000
     INCREMENT BY 50
     NO MINVALUE
     NO MAXVALUE
     CACHE 1;
 
-CREATE TABLE phone (
-    id integer NOT NULL,
-    phonenumber character varying(255),
-    type character varying(255),
-    employee_id integer NOT NULL,
-    created_date timestamp,
-    last_modified_date timestamp,
-    version integer default 0
+CREATE TABLE PHONE (
+    ID INTEGER NOT NULL,
+    PHONENUMBER CHARACTER VARYING(255),
+    TYPE CHARACTER VARYING(255),
+    EMPLOYEE_ID INTEGER NOT NULL,
+    CREATED_DATE TIMESTAMP,
+    LAST_MODIFIED_DATE TIMESTAMP,
+    VERSION INTEGER DEFAULT 0
 );
 
-CREATE SEQUENCE phone_seq
+CREATE SEQUENCE PHONE_SEQ
     START WITH 1000
     INCREMENT BY 50
     NO MINVALUE
     NO MAXVALUE
     CACHE 1;
 
-CREATE TABLE project (
-    dtype character varying(31) NOT NULL,
-    id integer NOT NULL,
-    name character varying(255),
-    created_date timestamp,
-    last_modified_date timestamp,
-    version integer default 0
+CREATE TABLE PROJECT (
+    DTYPE CHARACTER VARYING(31) NOT NULL,
+    ID INTEGER NOT NULL,
+    NAME CHARACTER VARYING(255),
+    CREATED_DATE TIMESTAMP,
+    LAST_MODIFIED_DATE TIMESTAMP,
+    VERSION INTEGER DEFAULT 0
 );
 
-CREATE SEQUENCE project_seq
+CREATE SEQUENCE PROJECT_SEQ
     START WITH 1000
     INCREMENT BY 50
     NO MINVALUE
@@ -85,43 +85,43 @@ CREATE SEQUENCE project_seq
     CACHE 1;
 
 
-CREATE TABLE project_employees (
-    projects_id integer NOT NULL,
-    employees_id integer NOT NULL
+CREATE TABLE PROJECT_EMPLOYEES (
+    PROJECTS_ID INTEGER NOT NULL,
+    EMPLOYEES_ID INTEGER NOT NULL
 );
 
-ALTER TABLE address
-    ADD CONSTRAINT address_pk PRIMARY KEY (id);
+ALTER TABLE ADDRESS
+    ADD CONSTRAINT ADDRESS_PK PRIMARY KEY (ID);
 
-ALTER TABLE department
-    ADD CONSTRAINT department_pk PRIMARY KEY (id);
+ALTER TABLE DEPARTMENT
+    ADD CONSTRAINT DEPARTMENT_PK PRIMARY KEY (ID);
 
-ALTER TABLE employee
-    ADD CONSTRAINT employee_pk PRIMARY KEY (id);
+ALTER TABLE EMPLOYEE
+    ADD CONSTRAINT EMPLOYEE_PK PRIMARY KEY (ID);
 
-ALTER TABLE project_employees
-    ADD CONSTRAINT project_employees_pk PRIMARY KEY (projects_id, employees_id);
+ALTER TABLE PROJECT_EMPLOYEES
+    ADD CONSTRAINT PROJECT_EMPLOYEES_PK PRIMARY KEY (PROJECTS_ID, EMPLOYEES_ID);
 
-ALTER TABLE phone
-    ADD CONSTRAINT phone_pk PRIMARY KEY (id);
+ALTER TABLE PHONE
+    ADD CONSTRAINT PHONE_PK PRIMARY KEY (ID);
 
-ALTER TABLE project
-    ADD CONSTRAINT project_pk PRIMARY KEY (id);
+ALTER TABLE PROJECT
+    ADD CONSTRAINT PROJECT_PK PRIMARY KEY (ID);
 
-ALTER TABLE phone
-    ADD CONSTRAINT phone_employee_fk FOREIGN KEY (employee_id) REFERENCES employee(id);
+ALTER TABLE PHONE
+    ADD CONSTRAINT PHONE_EMPLOYEE_FK FOREIGN KEY (EMPLOYEE_ID) REFERENCES EMPLOYEE(ID);
 
-ALTER TABLE project_employees
-    ADD CONSTRAINT project_employees_employee_fk FOREIGN KEY (employees_id) REFERENCES employee(id);
+ALTER TABLE PROJECT_EMPLOYEES
+    ADD CONSTRAINT PROJECT_EMPLOYEES_EMPLOYEE_FK FOREIGN KEY (EMPLOYEES_ID) REFERENCES EMPLOYEE(ID);
 
-ALTER TABLE employee
-    ADD CONSTRAINT employee_department_fk FOREIGN KEY (department_id) REFERENCES department(id);
+ALTER TABLE EMPLOYEE
+    ADD CONSTRAINT EMPLOYEE_DEPARTMENT_FK FOREIGN KEY (DEPARTMENT_ID) REFERENCES DEPARTMENT(ID);
 
-ALTER TABLE employee
-    ADD CONSTRAINT boss_employee_fk FOREIGN KEY (boss_id) REFERENCES employee(id);
+ALTER TABLE EMPLOYEE
+    ADD CONSTRAINT BOSS_EMPLOYEE_FK FOREIGN KEY (BOSS_ID) REFERENCES EMPLOYEE(ID);
 
-ALTER TABLE project_employees
-    ADD CONSTRAINT project_employees_project_fk FOREIGN KEY (projects_id) REFERENCES project(id);
+ALTER TABLE PROJECT_EMPLOYEES
+    ADD CONSTRAINT PROJECT_EMPLOYEES_PROJECT_FK FOREIGN KEY (PROJECTS_ID) REFERENCES PROJECT(ID);
 
-ALTER TABLE employee
-    ADD CONSTRAINT employee_address_fk FOREIGN KEY (address_id) REFERENCES address(id);
+ALTER TABLE EMPLOYEE
+    ADD CONSTRAINT EMPLOYEE_ADDRESS_FK FOREIGN KEY (ADDRESS_ID) REFERENCES ADDRESS(ID);
