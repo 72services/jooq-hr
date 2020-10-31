@@ -4,9 +4,14 @@ import io.seventytwo.demo.hr.dto.DepartmentSalaryStatistics;
 import io.seventytwo.demo.hr.model.tables.records.EmployeeRecord;
 import io.seventytwo.demo.hr.model.tables.records.PhoneRecord;
 import org.jooq.DSLContext;
+import org.jooq.Field;
+import org.jooq.JSON;
 import org.jooq.Record;
+import org.jooq.Record1;
 import org.jooq.Record2;
 import org.jooq.Result;
+import org.jooq.Table;
+import org.jooq.impl.DSL;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -171,20 +176,27 @@ public class JooqTest {
 
     @Test
     public void json() {
-        List<String> records = dsl
+        Field<JSON> employee = DSL.field("employee", JSON.class);
+
+        Table<Record1<JSON>> employees = dsl
                 .select(jsonObject(
-                        jsonEntry("id", PHONE.employee().ID),
-                        jsonEntry("name", PHONE.employee().NAME),
+                        jsonEntry("id", EMPLOYEE.ID),
+                        jsonEntry("name", EMPLOYEE.NAME),
                         jsonEntry("phones", jsonArrayAgg(
                                 jsonObject(
                                         jsonEntry("number", PHONE.PHONENUMBER),
-                                        jsonEntry("type", PHONE.TYPE))))))
-                .from(PHONE)
-                .groupBy(PHONE.employee().ID)
-                .fetchInto(String.class);
+                                        jsonEntry("type", PHONE.TYPE)))))
+                        .as(employee))
+                .from(EMPLOYEE)
+                .join(PHONE).on(PHONE.EMPLOYEE_ID.eq(EMPLOYEE.ID))
+                .groupBy(EMPLOYEE.ID)
+                .asTable();
 
-        for (String record : records) {
-            System.out.println(record);
-        }
+        String json = dsl
+                .select(jsonArrayAgg(employees.field(employee)))
+                .from(employees)
+                .fetchOneInto(String.class);
+
+        System.out.println(json);
     }
 }
