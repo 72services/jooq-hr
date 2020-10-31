@@ -19,6 +19,9 @@ import static io.seventytwo.demo.hr.model.tables.Employee.EMPLOYEE;
 import static io.seventytwo.demo.hr.model.tables.Phone.PHONE;
 import static io.seventytwo.demo.hr.model.tables.ProjectEmployees.PROJECT_EMPLOYEES;
 import static org.jooq.impl.DSL.avg;
+import static org.jooq.impl.DSL.jsonArrayAgg;
+import static org.jooq.impl.DSL.jsonEntry;
+import static org.jooq.impl.DSL.jsonObject;
 import static org.jooq.impl.DSL.min;
 import static org.jooq.impl.DSL.xmlagg;
 import static org.jooq.impl.DSL.xmlattributes;
@@ -168,5 +171,20 @@ public class JooqTest {
 
     @Test
     public void json() {
+        List<String> records = dsl
+                .select(jsonObject(
+                        jsonEntry("id", PHONE.employee().ID),
+                        jsonEntry("name", PHONE.employee().NAME),
+                        jsonEntry("phones", jsonArrayAgg(
+                                jsonObject(
+                                        jsonEntry("number", PHONE.PHONENUMBER),
+                                        jsonEntry("type", PHONE.TYPE))))))
+                .from(PHONE)
+                .groupBy(PHONE.employee().ID)
+                .fetchInto(String.class);
+
+        for (String record : records) {
+            System.out.println(record);
+        }
     }
 }
