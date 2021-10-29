@@ -70,11 +70,11 @@ public class JooqTest {
         assertEquals(2, list.size());
 
         for (DepartmentSalaryStatistics statistics : list) {
-            if (statistics.getDepartmentName().equals("IT")) {
-                assertEquals(97200.0, statistics.getAvgSalary(), 0);
+            if (statistics.departmentName().equals("IT")) {
+                assertEquals(97200.0, statistics.avgSalary(), 0);
             }
-            if (statistics.getDepartmentName().equals("HR")) {
-                assertEquals(95000.0, statistics.getAvgSalary(), 0);
+            if (statistics.departmentName().equals("HR")) {
+                assertEquals(95000.0, statistics.avgSalary(), 0);
             }
         }
     }
