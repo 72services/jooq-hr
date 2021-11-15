@@ -136,6 +136,7 @@ public class JooqTest {
         Result<PhoneRecord> list = dsl
                 .selectFrom(PHONE)
                 .where(PHONE.TYPE.eq("WORK"))
+                .orderBy(PHONE.PHONENUMBER)
                 .fetch();
         assertEquals(5, list.size());
     }
